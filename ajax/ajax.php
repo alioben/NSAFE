@@ -13,6 +13,7 @@ $return = '';
 $endpoint = 'http://50.116.48.206:3000/api/';
 switch($f){
 	case "doSomeML":
+	case "orderUber":
 	case "nextBus":
 	case "trafficData":
 		$endpoint = $endpoint.$f;

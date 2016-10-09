@@ -1,58 +1,47 @@
+var lat_bus,long_bus;
+var loaded = 0;
 $(function(){
+	window.alert = function() {};
 	
-	document.addEventListener('touchstart', handleTouchStart, false);        
-	document.addEventListener('touchmove', handleTouchMove, false);
-
-	var xDown = null;                                                        
-	var yDown = null;                                                        
-
-	function handleTouchStart(evt) {                                         
-	    xDown = evt.touches[0].clientX;                                      
-	    yDown = evt.touches[0].clientY;                                      
-	};                                                
-
-	function handleTouchMove(evt) {
-	    if ( ! xDown || ! yDown ) {
-	        return;
-	    }
-
-	    var xUp = evt.touches[0].clientX;                                    
-	    var yUp = evt.touches[0].clientY;
-
-	    var xDiff = xDown - xUp;
-	    var yDiff = yDown - yUp;
-
-	    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
-	        if ( xDiff <= 0 ) {
-	           switchScreen('screenDashboard'); 
-	        }                     
-	    } else if ( yDiff <= 0 ) {
-	         /* up swipe */                                                              
-	    }
-	    /* reset values */
-	    xDown = null;
-	    yDown = null;                                             
-	};
-
+	initAutocomplete();
 	switchScreen('screenDashboard');
 
 	$('.screenDashboard #butt-car').click(function(){
+		getTo();
+		getFrom();
+		if(loaded >= 2) {
+			params = {from: [$('#lat-from').val(), $('#long-from').val()], to: [$('#lat-to').val(), $('#long-to').val()]};
+			console.log(params);
+			getFromAjax('trafficData', params);
+			switchScreen("screenLoading");
+		}
+	});
 
-		params = {from: [$('#lat-from').val(), $('#long-from').val()], to: [$('#lat-to').val(), $('#long-to').val()]};
-		console.log(params);
-		getFromAjax('trafficData', params);
-		switchScreen("screenLoading");
+	$('.screenDashboard #butt-uber').click(function(){
+		window.location.replace("http://uber.com/");
+	});
+
+	$('.screenDashboard #watchme').click(function(){
+		switchScreen('screenLoading');
+		sleep(6000).then(() => {
+		   switchScreen('screenWatchMe');
+		   initMap2();
+		});
 	});
 
 	$('.screenDashboard #butt-bus').click(function(){
-		params = {from: [$('#lat-from').val(), $('#long-from').val()], to: [$('#lat-to').val(), $('#long-to').val()]
-				  };
-		getFromAjax('nextBus', params);
-		switchScreen("screenLoading");
+		getTo();
+		getFrom();
+		if(loaded >= 2) {
+			params = {from: [$('#lat-from').val(), $('#long-from').val()], to: [$('#lat-to').val(), $('#long-to').val()]};
+			getFromAjax('nextBus', params);
+			switchScreen("screenLoading");
+		}
 	});
 
 	$('.return-butt').click(function(){
 		switchScreen('screenDashboard');
+		
 	});
 	
 	function getFromAjax(func, params){
@@ -67,11 +56,11 @@ $(function(){
 		}, "json");
 	}
 
-
+	
 	function showVehicule(params){
 		// Update the risk
-			var bar_p = (params["risk"]/4.0)*100;
-			$('.screenVehicle .progress-risk .rp').css("width", bar_p);
+			var bar_p = (parseFloat(params["risk"])/4.0-Math.random())*100;
+			$('.screenVehicle .progress-risk .rp').css("width", bar_p+"%");
 			if(bar_p > 60)
 				$('.screenVehicle .progress-risk .rp').css("background-color", "red");
 			else if(bar_p > 30)
@@ -97,8 +86,8 @@ $(function(){
 			$('.screenVehicle .real-time').html(html);
 
 		// Update the danger factor
-			var bar1_p = (params["danger"]/3.0)*100;
-			$('.screenVehicle .danger-risk .dp').css("width", bar1_p);
+			var bar1_p = (parseFloat(params["danger"])/4.0-Math.random())*100;
+			$('.screenVehicle .danger-risk .dp').css("width", bar1_p+"%");
 			if(bar1_p > 60)
 				$('.screenVehicle .danger-risk .dp').css("background-color", "red");
 			else if(bar1_p > 30)
@@ -119,7 +108,7 @@ $(function(){
 		  realtime = []
 		  if(params.title){
 		  	entry = {title: params.title, description:params.description};
-		  	realtime.append(entry);
+		  	realtime.push(entry);
 		  }
 
 		  pss = {risk: data.risk, danger: data.danger, "real-time": realtime};
@@ -128,25 +117,60 @@ $(function(){
 		}, "json");
 	}
 
-	function showBus(params){
-		// Expected time
+	function waitML2(params){
+		lat = params.coordinates.start_location.lat;
+		lng = params.coordinates.start_location.lng;
+
 		
-		// Show the map
+		var diff = Math.floor((params.coordinates.transit_details.departure_time.value-Math.round(new Date().getTime()/1000))/60);
+		$('#waittime').html(diff+'min');
+		$('#busstation').html(params.coordinates.transit_details.departure_stop.name);
+
+		ps = {f: "doSomeML", visibility: 1, lat: lat, long: lng};
+
+		$.post("ajax/ajax.php", ps, function(data) {
+
+		  realtime = []
+		  if(params.title){
+		  	entry = {title: params.title, description:params.description};
+		  	realtime.push(entry);
+		  }
+
+
+		  pss = {danger: data.danger};
+		  showBus(pss);
+
+		}, "json");
+	}
+
+	function showBus(params){
+		comments = [{'name': 'Ali', 'comment': 'Look for the stores next to the bus stop, it may be safer for you.'}, 
+		 {'name': 'Budi', 'comment':'I prefer staying next to people and not alone. Always be acompanied!'},
+		 {'name':'Cooper', 'comment': 'Avoid this place at night, take an Uber, trust me it is worth it !'}];
 
 		// Update the realtime data
 			var html = '';
-			$.each(params["real-time"], function(k, v){
-				html += '<div class="info"><h4>';
-				html += v['title']+'</h4>';
-				html += '<p>'+v['description']+'</p>';
-				html += '</div>';
+			$.each(comments, function(k, v){
+				if(Math.random() > 0.3){
+					html += '<div class="info"><h4>';
+					html += v['name']+'</h4>';
+					html += '<p>'+v['comment']+'</p>';
+					html += '</div>';
+				}
 			});
-			$('.screenVehicle .real-time').html(html);
+			$('.screenBus .real-time').prepend(html);
 
 		// Update the danger factor
-			var bar1_p = (params["danger"]/3.0)*100;
-			$('.screenVehicle .danger-risk .dp').css("width", bar1_p);
+			var bar1_p = (params["danger"]/4.0-Math.random())*100;
+			$('.screenBus .danger-risk .dp').css("width", bar1_p);
+			if(bar1_p > 60)
+				$('.screenBus .danger-risk .dp').css("background-color", "red");
+			else if(bar1_p > 30)
+				$('.screenBus .danger-risk .dp').css("background-color", "orange");
+			else 
+				$('.screenBus .danger-risk .dp').css("background-color", "green");
 
+		initMap1();
 		switchScreen('screenBus');
 	}
 

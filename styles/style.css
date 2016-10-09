@@ -116,7 +116,6 @@ h4, h3, p{
 .progress-risk .rp{
   position:relative;
   background-color: orange;
-  width:40%;
 }
 
 .danger-risk{
@@ -128,7 +127,6 @@ h4, h3, p{
 .danger-risk .dp{
   position:relative;
   background-color: green;
-  width:10%;
 }
 
 .real-time{
