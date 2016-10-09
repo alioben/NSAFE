@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>!SAFE</title>
+	<link href="styles/style.css" rel="stylesheet" type="text/css" media="all"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+	<script type="text/Javascript" src ="js/jquery.js"></script>
+	<script type="text/Javascript" src ="js/script.js"></script>
+	<link rel="icon" type="image/png" href="images/icon.png" />
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700' rel='stylesheet' type='text/css'>
+	<style>
+      #map {
+        height: 100%;
+      }
+      #locationField, #controls {
+        position: relative;
+        width: 480px;
+      }
+      .label {
+        text-align: right;
+        font-weight: bold;
+        width: 100px;
+        color: #303030;
+      }
+      #address {
+        border: 1px solid #000090;
+        background-color: #f0f0ff;
+        width: 480px;
+        padding-right: 2px;
+      }
+      #address td {
+        font-size: 10pt;
+      }
+      .field {
+        width: 99%;
+      }
+      .slimField {
+        width: 80px;
+      }
+      .wideField {
+        width: 200px;
+      }
+      #locationField {
+        height: 20px;
+        margin-bottom: 2px;
+      }
+    </style>
+</head>
+<body>
+	<div class="scripts">
+	</div>
+	<div class="screen screenDashboard">
+		<div class="header">
+			<div class="search-container">
+				<div class="row-butt">
+					<input type="text" name="from" onFocus="geolocate1()" id="autocomplete1" placeholder="From">
+					<input type="hidden" value="" id="lat-from">
+					<input type="hidden" value="" id="long-from">
+				</div>
+				<div class="row-butt">
+					<input type="text" name="to" placeholder="To" onFocus="geolocate()" id="autocomplete" >
+					<input type="hidden" value="" id="lat-to">
+					<input type="hidden" value="" id="long-to">
+				</div>
+			</div>
+		</div>
+
+		<div class="main-buttons">
+			<div class="row-butt">
+				<button class="main-butt"  style="background-color:#efb200;" id="butt-car">
+					<img src="images/car.svg"/>
+				</button>
+				<button class="main-butt"  style="background-color:#00b9c3;" id="butt-bus">
+					<img src="images/bus.svg" />
+				</button>
+				<div class="clear"></div>
+			</div>
+			<div class="row-butt">
+				<button class="main-butt"  style="background-color:#000;" id="butt-uber">
+					<img src="images/uber.png" style="padding-top:3px;padding-bottom:2px;"/>
+				</button>
+				<button class="main-butt" style="background-color:#b51111;" id="butt-info">
+					<img src="images/position.svg" />
+				</button>
+				<div class="clear"></div>
+			</div>
+			<div class="row-butt">
+				<button class="main-butt" style="width:92%;background:#0055ff;color:#FFF; font-size:14pt;box-shadow: 4px 4px 0px #3a6fda;">
+					Watch me
+				</button>
+				<div class="clear"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="screen screenBus">
+		<div class="map-header" id="vehicule-map">
+			
+
+		</div>
+		¨
+		<div class="info-bus">
+			<table style="width:100%">
+				<tr>
+					<td>Waiting Time:</td><td>23min</td>
+				</tr>
+				<tr>
+					<td>Bus station:</td><td>Midtown</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="infos-ml" style="margin-bottom:20px;">
+			<div class="safety">
+				<h3>Danger meter</h3>
+				<div class="danger-risk">
+					<div class="dp">
+						&nbsp;
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="rate-this-trip" style="position:relative; width:90%; margin:auto;margin-bottom:10px;">
+		<table style="width:100%">
+		<tr>
+		<td>
+		<h3>Rate:</h3>
+		</td>
+		<td>
+			<div id="wrapper">
+			  <form action="" method="post">
+				<p class="clasificacion">
+				   <input id="radio1" type="radio" name="estrellas" value="5"><!--
+				  --><label for="radio1">&#9733;</label><!--
+				  --><input id="radio2" type="radio" name="estrellas" value="4"><!--
+				  --><label for="radio2">&#9733;</label><!--
+				  --><input id="radio3" type="radio" name="estrellas" value="3"><!--
+				  --><label for="radio3">&#9733;</label><!--
+				  --><input id="radio4" type="radio" name="estrellas" value="2"><!--
+				  --><label for="radio4">&#9733;</label><!--
+				  --><input id="radio5" type="radio" name="estrellas" value="1"><!--
+				  --><label for="radio5">&#9733;</label>
+				</p>
+			  </form>
+			</div>
+			</td>
+			</tr>
+			</table>
+		</div>
+
+		<div style="position:relative; width:90%; margin:auto;margin-bottom:10px;">
+			<h3>Stay Safe</h3>
+		</div>
+		
+		<div class="real-time">
+			<div class="add-comment">
+				<textarea name="comment" style="min-height:30px;width:100%;margin-bottom:10px;border-radius:5px;" placeholder="Add a safe spot next to this station"></textarea>
+				<button class="add-butt"  style="border-radius:5px;border:none; padding-top:5px;padding-bottom:3px;width:98%;background:#0055ff;color:#FFF; font-size:14pt;box-shadow: 4px 4px 0px #3a6fda;">Comment</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="screen screenVehicle">
+		<div class="map-header">
+			
+		</div>
+
+		<div class="infos-ml" style="margin-bottom:20px;">
+			<div class="risk">
+				<h3>Accident risk</h3>
+				<div class="progress-risk">
+					<div class="rp">
+						&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="safety">
+				<h3>Danger meter</h3>
+				<div class="danger-risk">
+					<div class="dp">
+						&nbsp;
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div style="position:Relative; width:90%; margin:auto;margin-bottom:10px;">
+			<h3>Live Information</h3>
+		</div>
+		<div class="real-time">
+			
+		</div>
+	</div>
+
+	<div class="screen screenLoading">
+		<div style="position:absolute; top:40%; width:100%;">
+			<div style="position:relative; margin:auto;width:50%;font-size:20pt;text-align:center;color:#000;">
+				Stay tuned, we'll be back in a minute...
+			</div>
+		</div>
+	</div>
+
+	<script>
+		navigator.geolocation.getCurrentPosition(function(location) {
+		   var lat = location.coords.latitude;
+		   var lng = location.coords.longitude;
+		   
+		});
+
+		var autocomplete, autocomplete1;
+		
+		function initAutocomplete() {
+		  autocomplete = new google.maps.places.Autocomplete((document.getElementById('autocomplete')), {types: ['geocode']});
+		  autocomplete1 = new google.maps.places.Autocomplete((document.getElementById('autocomplete1')), {types: ['geocode']});
+		}
+
+		function geolocate() {
+		  if (navigator.geolocation) {
+		    navigator.geolocation.getCurrentPosition(function(position) {
+		      var geolocation = {
+		        lat: position.coords.latitude,
+		        lng: position.coords.longitude
+		      };
+
+		      $('#lat-to').val(position.coords.latitude);
+		      $('#long-to').val(position.coords.longitude);
+		      var circle = new google.maps.Circle({
+		        center: geolocation,
+		        radius: position.coords.accuracy
+		      });
+		      autocomplete.setBounds(circle.getBounds());
+		    });
+		  }
+		}
+
+		function geolocate1() {
+		  if (navigator.geolocation) {
+		    navigator.geolocation.getCurrentPosition(function(position) {
+		      var geolocation = {
+		        lat: position.coords.latitude,
+		        lng: position.coords.longitude
+		      };
+		      $('#lat-from').val(position.coords.latitude);
+		      $('#long-from').val(position.coords.longitude);
+		      var circle = new google.maps.Circle({
+		        center: geolocation,
+		        radius: position.coords.accuracy
+		      });
+		      autocomplete1.setBounds(circle.getBounds());
+		    });
+		  }
+		}
+		// [END region_geolocation]
+
+	  // Edit your origin and destination here thx
+       origin = [$('#lat-from').val(), $('#long-from').val()];
+       destination = [$('#lat-to').val(), $('#long-to').val()];
+
+      function initMap() {
+      	console.log($('#lat-from').val(), $('#long-from').val());
+      	//Center the map around the origin
+        var map = new google.maps.Map(document.getElementById('vehicule-map'), {
+          zoom: 13,
+          center: {lat: $('#lat-from').val(), lng: $('#long-from').val()}
+        });
+        // var trafficLayer = new google.maps.TrafficLayer();
+        // trafficLayer.setMap(map);
+        var markerArray = [];
+        // Instantiate a directions service.
+        var directionsService = new google.maps.DirectionsService;
+        // Instantiate an info window to hold step text.
+        var stepDisplay = new google.maps.InfoWindow;
+        // Create a renderer for directions and bind it to the map.
+        var directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+        // Display the route between the initial start and end selections.
+        calculateAndDisplayRoute(directionsDisplay, directionsService, markerArray, stepDisplay, map);
+      }
+
+      function calculateAndDisplayRoute(directionsDisplay, directionsService,
+          markerArray, stepDisplay, map) {
+        // First, remove any existing markers from the map.
+        for (var i = 0; i < markerArray.length; i++) {
+          markerArray[i].setMap(null);
+        }
+        // Retrieve the start and end locations and create a DirectionsRequest using
+        // WALKING directions.
+        directionsService.route({
+          origin: new google.maps.LatLng($('#lat-from').val(), $('#long-from').val()), 
+          destination:new google.maps.LatLng(destination[0], destination[1]) ,
+          travelMode: 'TRANSIT'
+        }, function(response, status) {
+          // Route the directions and pass the response to a function to create
+          // markers for each step.
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+            showSteps(response, markerArray, stepDisplay, map);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+
+      function showSteps(directionResult, markerArray, stepDisplay, map) {
+        // For each step, place a marker, and add the text to the marker's infowindow.
+        // Also attach the marker to an array so we can keep track of it and remove it
+        // when calculating new routes.
+        var myRoute = directionResult.routes[0].legs[0];
+        for (var i = 0; i < myRoute.steps.length; i++) {
+          // Commment the whole section here if you want to disable the marker
+          var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
+          marker.setMap(map);
+          marker.setPosition(myRoute.steps[i].start_location);
+          attachInstructionText(
+              stepDisplay, marker, myRoute.steps[i].instructions, map);
+        }
+      }
+
+      function attachInstructionText(stepDisplay, marker, text, map) {
+        google.maps.event.addListener(marker, 'click', function() {
+          // Open an info window when the marker is clicked on, containing the text
+          // of the step.
+          stepDisplay.setContent(text);
+          stepDisplay.open(map, marker);
+        });
+      }
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBLyhBEBnRBD5nFdu4Blw5k7IKYFV59MI0&signed_in=true&libraries=places&callback=initAutocomplete" async defer>
+    </script>
+</body>
+</html>
